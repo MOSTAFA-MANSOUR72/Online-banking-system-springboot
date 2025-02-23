@@ -21,7 +21,7 @@ A Spring Boot-based banking application for managing user authentication, financ
 ## Technologies Used
 
 - **Backend**: Spring Boot, Spring Security, JWT.  
-- **Database**: Spring Data JPA (configured for MySQL/PostgreSQL).  
+- **Database**: Spring Data JPA (configured for MySQL).  
 - **Utilities**: Lombok, MapStruct (for mappers).  
 - **Email**: Java Mail Sender.  
 
