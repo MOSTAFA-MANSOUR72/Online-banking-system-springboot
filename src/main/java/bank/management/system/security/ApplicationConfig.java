@@ -1,7 +1,10 @@
 package bank.management.system.security;
 
+import bank.management.system.entity.Role;
+import bank.management.system.repository.RoleRepository;
 import bank.management.system.service.impl.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -36,5 +39,25 @@ public class ApplicationConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
+    }
+
+    @Bean
+    public CommandLineRunner init(RoleRepository roleRepository){
+        return args -> {
+            if(!roleRepository.existsByName("user")){
+                roleRepository.save(
+                        Role.builder()
+                                .name("user")
+                                .build()
+                );
+            }
+            if(!roleRepository.existsByName("admin")){
+                roleRepository.save(
+                        Role.builder()
+                                .name("admin")
+                                .build()
+                );
+            }
+        };
     }
 }

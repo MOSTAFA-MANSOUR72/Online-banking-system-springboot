@@ -10,6 +10,7 @@ import bank.management.system.repository.UserRepository;
 import bank.management.system.service.TransactionService;
 import bank.management.system.utils.AccountUtils;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -25,12 +26,15 @@ public class TransactionServiceImpl implements TransactionService {
     private final UserRepository userRepository;
     private final TransactionRepository transactionRepository;
     @Override
-    public BankResponse depositCreditAccount(CreditRequest request) {
+    public BankResponse depositCreditAccount(CreditRequest request, String username) {
 
-        accountExistChecker(request.getAccountNumber());// checking account existence:
+
+
+        User userCredit =  userRepository.findByUsername(username)
+                .orElseThrow(()->new RuntimeException("not found user exception"));
+
         negativeAmountChecker(request.getAmount());// check for value validation
 
-        User userCredit = userRepository.findByAccountNumber(request.getAccountNumber());
         userCredit.setAccountBalance(request
                 .getAmount()
                 .add(userCredit.getAccountBalance())
@@ -50,13 +54,13 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public BankResponse withdrawCreditAccount(CreditRequest request) {
+    public BankResponse withdrawCreditAccount(CreditRequest request, String username) {
 
-        accountExistChecker(request.getAccountNumber());// checking account existence:
 
         negativeAmountChecker(request.getAmount());// check for value validation
 
-        User userCredit = userRepository.findByAccountNumber(request.getAccountNumber());
+        User userCredit = userRepository.findByUsername(username)
+                .orElseThrow(()-> new RuntimeException("not found user exception"));
 
         withdrawChecker(request.getAmount(), userCredit.getAccountBalance());// check for withdraw value validation
 

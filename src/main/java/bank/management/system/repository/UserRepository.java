@@ -17,4 +17,5 @@ public interface UserRepository extends JpaRepository<User,Long> {
     @Query("select u from User u where concat(u.firstName,' ',u.lastName)   =?1")
     Optional<User> findByUsername(String username);
 
+
 }

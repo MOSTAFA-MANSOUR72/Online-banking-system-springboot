@@ -9,5 +9,9 @@ public interface UserService {
 
     User findById(long id);
     List<User> findAll();
-    BankResponse balanceEnquiry(EnquiryRequest enquiryRequest);
+    BankResponse balanceEnquiry(String username);
+    void deleteAll();
+    void deleteUserById(Long id);
+
+    void deleteByUserName(String name);
 }

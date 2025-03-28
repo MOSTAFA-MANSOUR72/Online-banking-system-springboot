@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Builder
 @AllArgsConstructor
@@ -16,7 +17,9 @@ public class userDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new grantedAuthority(user.getRoles().name()));
+        return user.getRoles().stream()
+                .map(u -> new grantedAuthority("ROLE_"+u.getName()))
+                .collect(Collectors.toList());
     }
 
     @Override

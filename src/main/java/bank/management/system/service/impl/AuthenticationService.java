@@ -4,14 +4,16 @@ import bank.management.system.dto.*;
 import bank.management.system.dto.authentication.LoginRequest;
 import bank.management.system.dto.authentication.AuthenticationResponse;
 import bank.management.system.dto.authentication.RegisterRequest;
+import bank.management.system.entity.Role;
 import bank.management.system.entity.model.userDetails;
-import bank.management.system.entity.Roles;
+import bank.management.system.entity.SystemRoles;
 import bank.management.system.entity.User;
 import bank.management.system.mapper.AuthenticationMapper;
 import bank.management.system.repository.UserRepository;
 import bank.management.system.security.jwt.JwtService;
 import bank.management.system.service.EmailService;
 import bank.management.system.utils.AccountUtils;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,6 +21,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
+import java.util.List;
 
 
 @Service
@@ -31,8 +34,38 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
+    private final EntityManager entityManager;
 
-    public AuthenticationResponse register(RegisterRequest userRequest) {
+    public AuthenticationResponse adminRegister(RegisterRequest adminRequest){
+        gmailExistChecker(adminRequest.getEmail());
+        List<Role> r = (entityManager.createQuery("select r from Role r",Role.class).getResultList());
+        User user = User.builder()
+                .firstName(adminRequest.getFirstName())
+                .lastName((adminRequest.getLastName()))
+                .password(passwordEncoder.encode(adminRequest.getPassword()))
+                .gender(adminRequest.getGender())
+                .address(adminRequest.getAddress())
+                .stateOfOrigin(adminRequest.getStateOfOrigin())
+                .accountNumber(AccountUtils.generateAccountNumber())
+                .accountBalance(BigDecimal.ZERO)
+                .phoneNumber(adminRequest.getPhoneNumber())
+                .email(adminRequest.getEmail())
+                .status("ACTIVE")
+                .roles(r)
+                .build();
+
+        User savedUser = userRepository.save(user);
+
+        String token = jwtService.generateToken(new userDetails(user));
+
+     //   sendGmailMessage(savedUser);
+
+        AuthenticationResponse response =authenticationMapper.apply(savedUser);
+        response.setToken(token);
+        return response;
+
+    }
+    public AuthenticationResponse userRegister(RegisterRequest userRequest) {
         gmailExistChecker(userRequest.getEmail());
 
         User user = User.builder()
@@ -47,14 +80,14 @@ public class AuthenticationService {
                 .phoneNumber(userRequest.getPhoneNumber())
                 .email(userRequest.getEmail())
                 .status("ACTIVE")
-                .roles(Roles.user)
+                .roles(entityManager.createQuery("select r from Role r where r.name = 'user'",Role.class).getResultList())
                 .build();
 
         User savedUser = userRepository.save(user);
 
         String token = jwtService.generateToken(new userDetails(user));
 
-        sendGmailMessage(savedUser);
+       // sendGmailMessage(savedUser);
 
         AuthenticationResponse response =authenticationMapper.apply(savedUser);
         response.setToken(token);

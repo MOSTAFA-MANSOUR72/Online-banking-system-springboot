@@ -1,6 +1,6 @@
 package bank.management.system.entity;
 
-public enum Roles {
+public enum SystemRoles {
     user,
     admin
 }

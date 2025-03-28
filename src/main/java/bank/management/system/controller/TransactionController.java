@@ -3,6 +3,7 @@ package bank.management.system.controller;
 import bank.management.system.dto.*;
 import bank.management.system.service.TransactionService;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,13 +15,13 @@ public class TransactionController {
     private final TransactionService transactionService;
 
     @PostMapping("deposit")
-    public BankResponse DepositRequest(@RequestBody CreditRequest request){
-        return transactionService.depositCreditAccount(request);
+    public BankResponse DepositRequest(@RequestBody CreditRequest request, Authentication p){
+        return transactionService.depositCreditAccount(request, p.getName());
     }
 
     @PostMapping("withdraw")
-    public BankResponse WithdrawRequest(@RequestBody CreditRequest request){
-        return transactionService.withdrawCreditAccount(request);
+    public BankResponse WithdrawRequest(@RequestBody CreditRequest request, Authentication p){
+        return transactionService.withdrawCreditAccount(request, p.getName());
     }
 
     @PostMapping("transfer")

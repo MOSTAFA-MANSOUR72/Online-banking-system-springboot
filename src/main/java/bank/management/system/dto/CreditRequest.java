@@ -12,6 +12,5 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @Builder
 public class CreditRequest {
-    private String accountNumber;
     private BigDecimal amount;
 }

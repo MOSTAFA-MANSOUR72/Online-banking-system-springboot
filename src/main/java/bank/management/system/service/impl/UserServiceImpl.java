@@ -32,11 +32,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public BankResponse balanceEnquiry(EnquiryRequest enquiryRequest) {
-        // checking account existence:
-        userExistChecker(enquiryRequest.getAccountNumber());
+    public BankResponse balanceEnquiry(String username) {
 
-        User foundUser = userRepository.findByAccountNumber(enquiryRequest.getAccountNumber());
+        // checking account existence:
+        User foundUser = userExistChecker(username);
+
         return BankResponse.builder()
                 .responseCode(AccountUtils.ACCOUNT_FOUND_CODE)
                 .responseMessage(AccountUtils.ACCOUNT_FOUND_MESSAGE)
@@ -49,11 +49,29 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
-    private void userExistChecker(String accountNumber){
-        boolean isAccountExist = userRepository
-                .existsByAccountNumber(accountNumber);
-        if(!isAccountExist) {
-            throw new RuntimeException("not found user exception");
-        }
+    @Override
+    public void deleteAll() {
+        userRepository.deleteAll();
+    }
+
+    @Override
+    public void deleteUserById(Long id) {
+        userRepository.deleteById(id);
+    }
+
+    @Override
+    public void deleteByUserName(String name) {
+        System.out.println("name : "+name);
+        User user = userRepository.findByUsername(name)
+                .orElseThrow(()-> new RuntimeException("not found user exception"));
+        userRepository.deleteById(user.getId());
+
+
+    }
+
+    private User userExistChecker(String accountNumber){
+        return userRepository
+                .findByUsername(accountNumber)
+                .orElseThrow(()->new RuntimeException("not found user exception"));
     }
 }
